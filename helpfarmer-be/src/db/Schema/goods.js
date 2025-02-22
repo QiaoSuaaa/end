@@ -26,6 +26,8 @@ const goodsSchema = new mongoose.Schema({
   // 操作 (在表格中展示删除操作等)
   // 这可以是一个方法或者其他字段，这里暂时忽略
   active: { type: Boolean, default: true },
+  //分类
+  category: { type: String, required: true },
 
   // 新增的字段，方便进行排序或者分组等操作},
   //元信息

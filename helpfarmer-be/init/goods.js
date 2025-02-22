@@ -15,6 +15,7 @@ const initialGoods = [
     count: 100,
     content:'包含多种维生素',
     flag: true,
+    category:'粮油',
     active: true,
     images: 'http://localhost:3000/d7110b56-9154-492c-97e4-2d9d020c0ab1.jpg',
   },
@@ -27,6 +28,7 @@ const initialGoods = [
     count: 200,
     content:'包含多种维生素',
     flag: true,
+    category:'水果',
     active: true,
     images: 'http://localhost:3000/d7110b56-9154-492c-97e4-2d9d020c0ab1.jpg',
   },
@@ -40,6 +42,7 @@ const initialGoods = [
     flag: true,
     content:'包含多种维生素',
     active: true,
+    category:'蔬菜',
     images:'http://localhost:3000/d7110b56-9154-492c-97e4-2d9d020c0ab1.jpg',
   },
 ];
