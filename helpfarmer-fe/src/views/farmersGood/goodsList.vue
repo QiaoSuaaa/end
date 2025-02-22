@@ -46,6 +46,116 @@ import { goods } from '@/service'
 const gridRef = ref()
 const selectRowSize = ref(10)
 //表格
+const avatarUrlCellRender = reactive({
+  name: 'VxeUpload',
+  props: {
+    mode: 'image',
+    singleMode: true,
+    urlMode: true,
+    showButtonText: false,
+    pasteToUpload: true,
+    autoHiddenButton: true,
+    progressText: '{percent}%',
+    imageConfig: {
+      width: 80,
+      height: 80,
+    },
+    uploadMethod({ file, updateProgress }) {
+      const formData = new FormData()
+      formData.append('file', file)
+      return axios
+        .post('/api/pub/upload/single', formData, {
+          // 显示进度
+          onUploadProgress(progressEvent) {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / (progressEvent.total || 0)
+            )
+            updateProgress(percentCompleted)
+          },
+        })
+        .then(res => {
+          // { url: ''}
+          return {
+            ...res.data,
+          }
+        })
+    },
+  },
+})
+const imgListCellRender = reactive({
+  name: 'VxeUpload',
+  props: {
+    mode: 'image',
+    multiple: true,
+    urlMode: true,
+    showButtonText: false,
+    pasteToUpload: true,
+    dragSort: true,
+    progressText: '{percent}%',
+    moreConfig: {
+      maxCount: 1,
+    },
+    imageConfig: {
+      width: 80,
+      height: 80,
+    },
+    uploadMethod({ file, updateProgress }) {
+      const formData = new FormData()
+      formData.append('file', file)
+      return axios
+        .post('/api/pub/upload/single', formData, {
+          // 显示进度
+          onUploadProgress(progressEvent) {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / (progressEvent.total || 0)
+            )
+            updateProgress(percentCompleted)
+          },
+        })
+        .then(res => {
+          // { url: ''}
+          return {
+            ...res.data,
+          }
+        })
+    },
+  },
+})
+const fileListCellRender = reactive({
+  name: 'VxeUpload',
+  props: {
+    multiple: true,
+    urlMode: true,
+    showButtonText: false,
+    pasteToUpload: true,
+    dragSort: true,
+    progressText: '{percent}%',
+    moreConfig: {
+      maxCount: 1,
+      layout: 'horizontal',
+    },
+    uploadMethod({ file, updateProgress }) {
+      const formData = new FormData()
+      formData.append('file', file)
+      return axios
+        .post('/api/pub/upload/single', formData, {
+          // 显示进度
+          onUploadProgress(progressEvent) {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / (progressEvent.total || 0)
+            )
+            updateProgress(percentCompleted)
+          },
+        })
+        .then(res => {
+          // { url: ''}
+          return {
+            ...res.data,
+          }
+        })
+    },
+  },
+})
 const dataOptions = ref([
   { label: '加载 3 行', value: 3 },
   { label: '加载 10 行', value: 10 },
@@ -82,6 +192,7 @@ const gridOptions = reactive({
   rowConfig: {
     useKey: true,
     isHover: true,
+    height: 150,
   },
   toolbarConfig: {
     custom: true,
@@ -134,6 +245,13 @@ const gridOptions = reactive({
       title: '基本信息',
       field: 'info',
       children: [
+        {
+          field: 'images',
+          title: '商品图片',
+          width:100,
+          height:100,
+          cellRender: avatarUrlCellRender,
+        },
         {
           field: 'description',
           title: '描述',
