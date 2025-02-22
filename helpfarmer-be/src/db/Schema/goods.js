@@ -6,10 +6,12 @@ const goodsSchema = new mongoose.Schema({
   name: { type: String, required: true },
   // 描述
   description: { type: String, required: true },
-
+  //图片
+  images:{type:String},
   // 生产地
-  city: { type: String, required: true },
-
+  city: { type: String,  },
+  //内容
+  content:{type:String},
   // 价格
   price: { type: Number, required: true },
 

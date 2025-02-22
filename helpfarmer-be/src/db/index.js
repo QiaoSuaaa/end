@@ -2,6 +2,7 @@ require('./Schema/goods');
 require('./Schema/user');
 require('./Schema/character')
 require('./Schema/inviteCode')
+require('./Schema/goodsCategory')
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
