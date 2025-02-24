@@ -459,6 +459,8 @@ nextTick(() => {
 import { ref, reactive, nextTick } from 'vue'
 import { VxeUI } from 'vxe-pc-ui'
 import { goods } from '@/service'
+import axios from 'axios'
+
 const gridRef = ref()
 const selectRowSize = ref(10)
 //表格
@@ -478,22 +480,36 @@ const avatarUrlCellRender = reactive({
     },
     uploadMethod({ file, updateProgress }) {
       const formData = new FormData()
-      formData.append('file', file)
+      if(file){
+        formData.append('file', file)
+       console.log('准备上传文件',formData);
+      }else{
+        console.error('没有获取到');
+      }
+      console.log('开始上传文件', file) // 添加调试信息
+
       return axios
         .post('http://localhost:3000/goods/upload', formData, {
-          // 显示进度
           onUploadProgress(progressEvent) {
             const percentCompleted = Math.round(
               (progressEvent.loaded * 100) / (progressEvent.total || 0)
             )
-            updateProgress(percentCompleted)
+            updateProgress(percentCompleted) // 更新进度条
           },
         })
         .then(res => {
-          // { url: ''}
+          console.log('上传成功', res) // 上传成功的响应
           return {
-            ...res.data,
+            url: res.data.data || '',
           }
+        })
+        .catch(error => {
+          console.error('上传失败', error) // 上传失败的错误信息
+          VxeUI.modal.message({
+            content: `图片上传失败: ${error.message}`,
+            status: 'error',
+          })
+          throw error
         })
     },
   },
@@ -518,9 +534,11 @@ const imgListCellRender = reactive({
     uploadMethod({ file, updateProgress }) {
       const formData = new FormData()
       formData.append('file', file)
+
+      console.log('开始上传文件', file) // 添加调试信息
+
       return axios
         .post('http://localhost:3000/goods/upload', formData, {
-          // 显示进度
           onUploadProgress(progressEvent) {
             const percentCompleted = Math.round(
               (progressEvent.loaded * 100) / (progressEvent.total || 0)
@@ -529,10 +547,18 @@ const imgListCellRender = reactive({
           },
         })
         .then(res => {
-          // { url: ''}
+          console.log('上传成功', res) // 上传成功的响应
           return {
-            ...res.data,
+            url: res.data.url || '',
           }
+        })
+        .catch(error => {
+          console.error('上传失败', error) // 上传失败的错误信息
+          VxeUI.modal.message({
+            content: `图片上传失败: ${error.message}`,
+            status: 'error',
+          })
+          throw error
         })
     },
   },
@@ -553,9 +579,11 @@ const fileListCellRender = reactive({
     uploadMethod({ file, updateProgress }) {
       const formData = new FormData()
       formData.append('file', file)
+
+      console.log('开始上传文件', file) // 添加调试信息
+
       return axios
         .post('http://localhost:3000/goods/upload', formData, {
-          // 显示进度
           onUploadProgress(progressEvent) {
             const percentCompleted = Math.round(
               (progressEvent.loaded * 100) / (progressEvent.total || 0)
@@ -564,10 +592,18 @@ const fileListCellRender = reactive({
           },
         })
         .then(res => {
-          // { url: ''}
+          console.log('上传成功', res) // 上传成功的响应
           return {
-            ...res.data,
+            url: res.data.url || '',
           }
+        })
+        .catch(error => {
+          console.error('上传失败', error) // 上传失败的错误信息
+          VxeUI.modal.message({
+            content: `图片上传失败: ${error.message}`,
+            status: 'error',
+          })
+          throw error
         })
     },
   },
@@ -664,8 +700,8 @@ const gridOptions = reactive({
         {
           field: 'images',
           title: '商品图片',
-          width:100,
-          height:100,
+          width: 100,
+          height: 100,
           cellRender: avatarUrlCellRender,
         },
         {
@@ -794,6 +830,35 @@ const removeRow = async row => {
   }
 }
 //保存，(修改，添加)
+// const saveEvent = async () => {
+//   const $grid = gridRef.value
+//   if ($grid) {
+//     const errMap = await $grid.validate(true)
+//     if (errMap) {
+//       return
+//     }
+//     const { insertRecords, updateRecords, removeRecords } = $grid.getRecordset()
+//     const pendingRecords = $grid.getPendingRecords()
+//     try {
+//       await Promise.all([
+//         ...insertRecords.map(record => goods.add(record)),
+//         ...updateRecords.map(record => goods.update(record)),
+//       ])
+//       VxeUI.modal.alert({
+//         title: '商品管理器',
+//         content: `新增：${insertRecords.length} 行，已删除：${removeRecords.length} 行，待删除：${pendingRecords.length} 行，修改：${updateRecords.length} 行`,
+//       })
+//       loadDataForm(selectRowSize.value)
+//     } catch (error) {
+//       console.error('保存失败', error)
+//       VxeUI.modal.message({
+//         content: '保存失败',
+//         status: 'error',
+//       })
+//     }
+//   }
+// }
+// 更新商品或新增商品时，附带上传的图片路径
 const saveEvent = async () => {
   const $grid = gridRef.value
   if ($grid) {
@@ -803,10 +868,20 @@ const saveEvent = async () => {
     }
     const { insertRecords, updateRecords, removeRecords } = $grid.getRecordset()
     const pendingRecords = $grid.getPendingRecords()
+
+    // 更新商品数据，将图片路径传入
     try {
       await Promise.all([
-        ...insertRecords.map(record => goods.add(record)),
-        ...updateRecords.map(record => goods.update(record)),
+        ...insertRecords.map(record => {
+          record.images = record.images || [] // 如果没有传入图片路径，给一个空数组
+          record.images.push(...imageUrls) // 将上传的图片路径添加到商品数据中
+          return goods.add(record)
+        }),
+        ...updateRecords.map(record => {
+          record.images = record.images || [] // 更新时处理图片路径
+          record.images.push(...imageUrls)
+          return goods.update(record)
+        }),
       ])
       VxeUI.modal.alert({
         title: '商品管理器',

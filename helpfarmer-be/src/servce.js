@@ -9,6 +9,11 @@ const Router = require('@koa/router');
 
 const app = new Koa();
 const { tokenMiddleware, catchAuthError } = require('./helpers/token');
+//静态资源图片
+const path =require('path')
+const serve=require('koa-static')
+const staticPath = path.join(__dirname, '../static/goods');
+  
 
 // Middleware
 
@@ -16,6 +21,7 @@ const { tokenMiddleware, catchAuthError } = require('./helpers/token');
 connectDB().then(() => {
   app.use(cors()); // 允许跨域请求
   app.use(koaBody());
+  app.use(serve(staticPath))
   tokenMiddleware(app); // 添加 Token 校验中间件
   app.use(catchAuthError); // 捕获认证错误
   // 使用路由
