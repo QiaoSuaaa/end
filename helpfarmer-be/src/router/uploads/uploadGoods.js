@@ -1,6 +1,6 @@
 const multer = require('@koa/multer');
 const path = require('path');
-const { v4: uuidv4 } = require('uuidv4');
+const { v4: uuidv4 } = require('uuid');
 //配置multer存储选项
 const storage = multer.diskStorage({
   //文件上传目录

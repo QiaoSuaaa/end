@@ -480,7 +480,7 @@ const avatarUrlCellRender = reactive({
       const formData = new FormData()
       formData.append('file', file)
       return axios
-        .post('/api/pub/upload/single', formData, {
+        .post('http://localhost:3000/goods/upload', formData, {
           // 显示进度
           onUploadProgress(progressEvent) {
             const percentCompleted = Math.round(
@@ -519,7 +519,7 @@ const imgListCellRender = reactive({
       const formData = new FormData()
       formData.append('file', file)
       return axios
-        .post('/api/pub/upload/single', formData, {
+        .post('http://localhost:3000/goods/upload', formData, {
           // 显示进度
           onUploadProgress(progressEvent) {
             const percentCompleted = Math.round(
@@ -554,7 +554,7 @@ const fileListCellRender = reactive({
       const formData = new FormData()
       formData.append('file', file)
       return axios
-        .post('/api/pub/upload/single', formData, {
+        .post('http://localhost:3000/goods/upload', formData, {
           // 显示进度
           onUploadProgress(progressEvent) {
             const percentCompleted = Math.round(
