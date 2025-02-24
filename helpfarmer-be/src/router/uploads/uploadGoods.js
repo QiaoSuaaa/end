@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const storage = multer.diskStorage({
   //文件上传目录
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../uploads/goods'));
+    cb(null, path.join(__dirname, '../../uploads/goods'));
   },
   //文件名
   filename: (req, file, cb) => {
@@ -27,7 +27,7 @@ const upload = multer({
     if (extname && mimeType) {
       return cb(null, true);
     } else {
-      cb(new Error('只有图片类型的文件支持上传'), false);
+      cb(new Error('只支持图片类型的文件上传'), false);
     }
   },
 });

@@ -150,7 +150,7 @@ const router = new Router({
 router.post('/add', uploadMiddleware.array('images', 5), async (ctx) => {
   try {
     const { name, description, city, price, content, production, count, category, flag, active } = ctx.request.body;
-    const imagePaths = ctx.files ? ctx.files.map(file => `/uploads/${file.filename}`) : [];
+    const imagePaths = ctx.files ? ctx.files.map(file => `../../uploads/goods${file.filename}`) : [];
 
     const goods = new Goods({
       name,
@@ -218,7 +218,7 @@ router.put('/update', uploadMiddleware.array('images', 5), async (ctx) => {
     }
 
     // 如果有新上传的图片，更新图片路径
-    const newImagePaths = ctx.files ? ctx.files.map(file => `/uploads/${file.filename}`) : images;
+    const newImagePaths = ctx.files ? ctx.files.map(file => `../../uploads/goods/${file.filename}`) : images;
     Object.assign(existingGoods, {
       name,
       description,
@@ -301,7 +301,7 @@ router.get('/delete/:id', async (ctx) => {
 router.post('/upload', uploadMiddleware.array('file', 5), async (ctx) => {
   try {
     if (ctx.files && ctx.files.length > 0) {
-      const fileUrls = ctx.files.map(file => `/uploads/${file.filename}`);
+      const fileUrls = ctx.files.map(file => `../../uploads/goods/${file.filename}`);
       ctx.status = 200;
       ctx.body = {
         success: true,
