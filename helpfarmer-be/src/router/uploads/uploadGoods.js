@@ -10,9 +10,11 @@ const storage = multer.diskStorage({
   },
   // 文件名：保留原始文件名，并在前面加上时间戳和随机ID来确保唯一性
   filename: (req, file, cb) => {
+       
+    console.log(file.originalname);
     const extname = path.extname(file.originalname); // 获取文件扩展名
     const basename = path.basename(file.originalname, extname); // 获取文件原始名称，不包括扩展名
-    const uniqueSuffix = Date.now() + '-' + uuidv4(); // 生成唯一的文件名
+    const uniqueSuffix = '-' + uuidv4(); // 生成唯一的文件名
     const newFilename = `${basename}-${uniqueSuffix}${extname}`; // 新的文件名，包含原文件名和唯一后缀
     cb(null, newFilename);
   },

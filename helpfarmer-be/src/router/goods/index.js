@@ -409,97 +409,52 @@ router.post('/add', uploadMiddleware.array('images', 5), async (ctx) => {
 });
 
 // 更新商品信息
-// router.put('/update', uploadMiddleware.array('images', 5), async (ctx) => {
-//   try {
-//     const { _id, name, description, city, price, content, production, count, category, flag, active, images } = ctx.request.body;
-//     if (!_id) {
-//       ctx.status = 400;
-//       ctx.body = {
-//         success: false,
-//         code: 1,
-//         message: '缺少字段',
-//       };
-//       return;
-//     }
-
-//     const existingGoods = await Goods.findOne({ _id }).exec();
-//     if (!existingGoods) {
-//       ctx.status = 404;
-//       ctx.body = { success: false, code: 1, message: '商品未找到' };
-//       return;
-//     }
-
-//     // 如果有新上传的图片，更新图片路径
-   
-//     const newImagePaths = ctx.files ? ctx.files.map(file => `http://localhost:3000/${file.filename}`) : images;
-
-//     // 更新商品信息
-//     existingGoods.name = name || existingGoods.name;
-//     existingGoods.description = description || existingGoods.description;
-//     existingGoods.city = city || existingGoods.city;
-//     existingGoods.price = price || existingGoods.price;
-//     existingGoods.content = content || existingGoods.content;
-//     existingGoods.production = production || existingGoods.production;
-//     existingGoods.count = count || existingGoods.count;
-//     existingGoods.category = category || existingGoods.category;
-//     existingGoods.flag = flag || existingGoods.flag;
-//     existingGoods.active = active || existingGoods.active;
-//     existingGoods.images = newImagePaths; // 更新图片路径
-
-//     // 保存更新后的商品信息
-//     await existingGoods.save();
-
-//     ctx.status = 200;
-//     ctx.body = {
-//       success: true,
-//       code: 0,
-//       message: '更新成功',
-//       data: existingGoods,
-//     };
-//   } catch (error) {
-//     console.error('更新失败:', error);
-//     ctx.status = 500;
-//     ctx.body = {
-//       success: false,
-//       code: 1,
-//       message: '服务器错误',
-//       error,
-//     };
-//   }
-// });
 router.put('/update', uploadMiddleware.array('images', 5), async (ctx) => {
   try {
-    const { _id, images, ...rest } = ctx.request.body;
+    const { _id, name, description, city, price, content, production, count, category, flag, active, images } = ctx.request.body;
+    if (!_id) {
+      ctx.status = 400;
+      ctx.body = {
+        success: false,
+        code: 1,
+        message: '缺少字段',
+      };
+      return;
+    }
 
-    // 查找商品
-    const existingGoods = await Goods.findOne({ _id });
+    const existingGoods = await Goods.findOne({ _id }).exec();
     if (!existingGoods) {
       ctx.status = 404;
       ctx.body = { success: false, code: 1, message: '商品未找到' };
       return;
     }
 
-    // 处理图片路径（确保为字符串）
-    let newImagePath = '';
-    if (ctx.files?.length > 0) {
-      // 只取第一张新上传的图片路径
-      newImagePath = ctx.files[0].filename; 
-    } else if (images) {
-      // 直接使用传递的字符串
-      newImagePath = images;
-    }
+    // 如果有新上传的图片，更新图片路径
+   
+    const newImagePaths = ctx.files ? ctx.files.map(file => `http://localhost:3000/${file.filename}`) : images;
 
-    // 更新字段
-    Object.assign(existingGoods, rest);
-    existingGoods.images = newImagePath[0].name; // 保存为字符串
+    // 更新商品信息
+    existingGoods.name = name || existingGoods.name;
+    existingGoods.description = description || existingGoods.description;
+    existingGoods.city = city || existingGoods.city;
+    existingGoods.price = price || existingGoods.price;
+    existingGoods.content = content || existingGoods.content;
+    existingGoods.production = production || existingGoods.production;
+    existingGoods.count = count || existingGoods.count;
+    existingGoods.category = category || existingGoods.category;
+    existingGoods.flag = flag || existingGoods.flag;
+    existingGoods.active = active || existingGoods.active;
+    existingGoods.images = newImagePaths; // 更新图片路径
 
+    // 保存更新后的商品信息
     await existingGoods.save();
 
+    ctx.status = 200;
     ctx.body = {
       success: true,
       code: 0,
       message: '更新成功',
-      data: existingGoods
+      data: existingGoods,
     };
   } catch (error) {
     console.error('更新失败:', error);
@@ -508,10 +463,56 @@ router.put('/update', uploadMiddleware.array('images', 5), async (ctx) => {
       success: false,
       code: 1,
       message: '服务器错误',
-      error: error.message
+      error,
     };
   }
 });
+// router.put('/update', uploadMiddleware.array('images', 5), async (ctx) => {
+//   try {
+//     const { _id, images, ...rest } = ctx.request.body;
+
+//     // 查找商品
+//     const existingGoods = await Goods.findOne({ _id });
+//     if (!existingGoods) {
+//       ctx.status = 404;
+//       ctx.body = { success: false, code: 1, message: '商品未找到' };
+//       return;
+//     }
+
+//     // 处理图片路径（确保为字符串）
+//     let newImagePath = '';
+//     if (ctx.files?.length > 0) {
+//       // 只取第一张新上传的图片路径
+//       newImagePath = ctx.files[0].filename; 
+//     } else if (images) {
+//       // 直接使用传递的字符串
+//       newImagePath = images;
+//     }
+
+//     // 更新字段
+//     Object.assign(existingGoods, rest);
+//     const filename=newImagePath
+//     existingGoods.images = `http://localhost:3000/${filename}`; // 保存为字符串
+
+//     await existingGoods.save();
+
+//     ctx.body = {
+//       success: true,
+//       code: 0,
+//       message: '更新成功',
+//       data: existingGoods
+//     };
+//   } catch (error) {
+//     console.error('更新失败:', error);
+//     ctx.status = 500;
+//     ctx.body = {
+//       success: false,
+//       code: 1,
+//       message: '服务器错误',
+//       error: error.message
+//     };
+//   }
+// });
 // 获取商品列表（带分页）
 router.get('/list', async (ctx) => {
   try {
@@ -630,14 +631,12 @@ router.get('/delete/:id', async (ctx) => {
 // 图片上传接口
 router.post('/upload', uploadMiddleware.array('file', 5), async (ctx) => {
   try {
-    const file=ctx.request.files;
-    console.log(file);
-    const fileName=file.originalFilename;
     if (ctx.files && ctx.files.length > 0) {
       const fileUrls = ctx.files.map(file => `http://localhost:3000/${file.filename}`);
       ctx.status = 200;
       ctx.body = {
         success: true,
+        message: '上传成',
         data: fileUrls, // 返回上传的文件路径
       };
     } else {

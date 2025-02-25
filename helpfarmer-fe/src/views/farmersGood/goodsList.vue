@@ -464,130 +464,74 @@ import axios from 'axios'
 const gridRef = ref()
 const selectRowSize = ref(10)
 //表格
-// const avatarUrlCellRender = reactive({
-//   name: 'VxeUpload',
-//   props: {
-//     mode: 'image',
-//     singleMode: true,
-//     urlMode: true,
-//     showButtonText: false,
-//     pasteToUpload: true,
-//     autoHiddenButton: true,
-//     progressText: '{percent}%',
-//     imageConfig: {
-//       width: 80,
-//       height: 80,
-//     },
-//     uploadMethod({ file, updateProgress }) {
-//       const formData = new FormData()
-//       if(file){
-//         formData.append('file', file)
-//        console.log('准备上传文件',formData);
-//       }else{
-//         console.error('没有获取到');
-//       }
-//       console.log('开始上传文件', file) // 添加调试信息
 
-//       return axios
-//         .post('http://localhost:3000/goods/upload', formData, {
-//           onUploadProgress(progressEvent) {
-//             const percentCompleted = Math.round(
-//               (progressEvent.loaded * 100) / (progressEvent.total || 0)
-//             )
-//             updateProgress(percentCompleted) // 更新进度条
-//           },
-//         })
-//         .then(res => {
-//           console.log('上传成功', res) // 上传成功的响应
-//           return {
-//             url: res.data.data || '',
-//           }
-//         })
-//         .catch(error => {
-//           console.error('上传失败', error) // 上传失败的错误信息
-//           VxeUI.modal.message({
-//             content: `图片上传失败: ${error.message}`,
-//             status: 'error',
-//           })
-//           throw error
-//         })
-//     },
-//   },
-// })
-// const avatarUrlCellRender = reactive({
-//   name: 'VxeUpload',
-//   props: {
-//     mode: 'image',
-//     singleMode: true,
-//     urlMode: true,
-//     showButtonText: false,
-//     pasteToUpload: true,
-//     autoHiddenButton: true,
-//     progressText: '{percent}%',
-//     imageConfig: {
-//       circle: true,
-//       width: 40,
-//       height: 40
-//     },
-
-//     uploadMethod ({ file, updateProgress, row }) { // 添加 row 参数
-//       const formData = new FormData()
-//       formData.append('file', file)
-//       return axios.post('http://localhost:3000/goods/upload', formData, {
-//         onUploadProgress (progressEvent) {
-//           const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 0))
-//           updateProgress(percentCompleted)
-//         }
-//       }).then((res) => {
-//         // 上传成功后，更新当前行的 avatarUrl 字段
-//         console.log(res.data.data[0]);
-//         console.log(row);
-//         row.avatarUrl = res.data.data[0] // 假设返回的图片地址在 res.data.url
-//         return {
-//           ...res.data.data[0]
-//         }
-//       })
-//     }
-//   }
-// })
 // 定义 VxeUpload 的配置
-const avatarUrlCellRender = reactive({
+const imgListCellRender = reactive({
   name: 'VxeUpload',
   props: {
     mode: 'image',
-    singleMode: true,
+    multiple: true,
     urlMode: true,
     showButtonText: false,
     pasteToUpload: true,
-    autoHiddenButton: true,
+    dragSort: true,
     progressText: '{percent}%',
-    imageConfig: {
-      circle: true,
-      width: 40,
-      height: 40,
+    moreConfig: {
+      maxCount: 1
     },
-    // 新增 row 属性接收当前行数据
-    row: Object,
-  
-  },
-  uploadMethod({ file, updateProgress, row }) {
-  const formData = new FormData();
-  console.log(formData);
-  formData.append('file', file);
-  return axios.post('http://localhost:3000/goods/upload', formData, {
-    onUploadProgress(progressEvent) {
-      const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 0));
-      updateProgress(percentCompleted);
+    imageConfig: {
+      width: 40,
+      height: 40
+    },
+    uploadMethod ({ file, updateProgress }) {
+      const formData = new FormData()
+      formData.append('file', file)
+      return axios.post('http://localhost:3000/goods/upload', formData, {
+        // 显示进度
+        onUploadProgress (progressEvent) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 0))
+          updateProgress(percentCompleted)
+        }
+      }).then((res) => {
+        const imgListUrl=res.data.data[0]
+        return {
+          ...res.data.data[0]
+        }
+      })
     }
-  }).then((res) => {
-    // 确保返回图片名称字符串（而非对象）
-    const imageName = res.data.data[0].name; // 假设后端返回 { data: [{ name: 'xxx.jpg' }] }
-    row.avatarUrl = imageName; // 只保存图片名称
-    return imageName; // 返回字符串
-  });
-}
+  }
 })
-
+const fileListCellRender = reactive({
+  name: 'VxeUpload',
+  props: {
+    multiple: true,
+    urlMode: true,
+    showButtonText: false,
+    pasteToUpload: true,
+    dragSort: true,
+    progressText: '{percent}%',
+    moreConfig: {
+      maxCount: 1,
+      layout: 'horizontal'
+    },
+    uploadMethod ({ file, updateProgress }) {
+      const formData = new FormData()
+      formData.append('file', file)
+      return axios.post('/api/pub/upload/single', formData, {
+        // 显示进度
+        onUploadProgress (progressEvent) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 0))
+          updateProgress(percentCompleted)
+        }
+      }).then((res) => {
+        // { url: ''}
+        return {
+          ...res.data
+        }
+      })
+    }
+  }
+})
 const dataOptions = ref([
   { label: '加载 3 行', value: 3 },
   { label: '加载 10 行', value: 10 },
@@ -678,17 +622,6 @@ const gridOptions = reactive({
       field: 'info',
       children: [
         {
-          field: 'images',
-          title: '商品图片',
-          width: 100,
-          height: 100,
-          cellRender: {
-            ...avatarUrlCellRender,
-            // 动态传递当前行的 row 到组件 props
-            props: params => ({ row: params.row }),
-          },
-        },
-        {
           field: 'description',
           title: '描述',
           width: 140,
@@ -700,6 +633,8 @@ const gridOptions = reactive({
           width: 140,
           editRender: cityEditRender,
         },
+        { field: 'imgList', title: '图片列表', width: 210, cellRender: imgListCellRender },
+        { field: 'fileList', title: '附件列表', width: 300, cellRender: fileListCellRender},
         {
           field: 'count',
           title: '数量',
@@ -769,16 +704,32 @@ const changeRowSizeEvent = () => {
   loadDataForm(selectRowSize.value)
 }
 //增加空白行
+// const addEvent = async () => {
+//   const $grid = gridRef.value
+//   if ($grid) {
+//     const record = {
+//       name: '',
+//       description: '',
+//       price: '',
+//       city: '',
+//       flag: false,
+//       count: '',
+//     }
+//     const { row: newRow } = await $grid.insertAt(record, null)
+//     $grid.setPendingRow(newRow)
+//   }
+// }
 const addEvent = async () => {
   const $grid = gridRef.value
   if ($grid) {
     const record = {
       name: '',
       description: '',
-      price: '',
-      city: '',
+      price: 0,
+      city: 'sz',
       flag: false,
-      count: '',
+      count: 0,
+      images: '' // 明确初始化图片字段
     }
     const { row: newRow } = await $grid.insertAt(record, null)
     $grid.setPendingRow(newRow)
@@ -842,78 +793,141 @@ const removeRow = async row => {
 //     }
 //   }
 // }
+// const saveEvent = async () => {
+//   const $grid = gridRef.value
+//   if ($grid) {
+//     const errMap = await $grid.validate(true)
+//     if (errMap) {
+//       return
+//     }
+
+//     const { insertRecords, updateRecords, removeRecords } = $grid.getRecordset()
+//     const pendingRecords = $grid.getPendingRecords()
+
+//     try {
+//       // 处理新增记录
+//       await Promise.all(
+//         insertRecords.map(record => {
+//           console.log(record)
+//           // 确保 images 字段存在
+//           if (!record.images) {
+//             record.images = '' // 如果没有图片，设置为空字符串
+//           }
+//           return goods.add(record)
+//         })
+//       )
+
+//       // 处理更新记录
+//       // await Promise.all(
+//       //   updateRecords.map(record => {
+//       //     // 确保 images 字段存在
+//       //     console.log(record);
+
+//       //     if (!record.images) {
+//       //       record.images = ''; // 如果没有图片，设置为空字符串
+//       //     }
+//       //     return goods.update(record);
+//       //   })
+//       // );
+//       await Promise.all(
+//         updateRecords.map(async record => {
+//           // 过滤无效数据
+//           const validData = {
+//             _id: record._id, // 确保携带ID
+//             name: record.name,
+//             description: record.description,
+//             images: record.images || '',
+//             // 其他字段...
+//           }
+
+//           return goods.update(validData)
+//         })
+//       )
+
+//       VxeUI.modal.alert({
+//         title: '商品管理器',
+//         content: `新增：${insertRecords.length} 行，已删除：${removeRecords.length} 行，待删除：${pendingRecords.length} 行，修改：${updateRecords.length} 行`,
+//       })
+
+//       // 重新加载数据
+//       loadDataForm(selectRowSize.value)
+//     } catch (error) {
+//       console.error('保存失败', error)
+//       VxeUI.modal.message({
+//         content: '保存失败',
+//         status: 'error',
+//       })
+//     }
+//   }
+// }
 const saveEvent = async () => {
   const $grid = gridRef.value
   if ($grid) {
     const errMap = await $grid.validate(true)
-    if (errMap) {
-      return
-    }
+    if (errMap) return
 
     const { insertRecords, updateRecords, removeRecords } = $grid.getRecordset()
     const pendingRecords = $grid.getPendingRecords()
 
     try {
-      // 处理新增记录
-      await Promise.all(
-        insertRecords.map(record => {
-          console.log(record)
-          // 确保 images 字段存在
-          if (!record.images) {
-            record.images = '' // 如果没有图片，设置为空字符串
-          }
-          return goods.add(record)
+      // 处理新增记录（确保包含 images 字段）
+      await Promise.all(insertRecords.map(record =>
+        goods.add({
+          ...record,
+          images: record.images || '' // 处理空值
         })
-      )
+      ))
 
-      // 处理更新记录
-      // await Promise.all(
-      //   updateRecords.map(record => {
-      //     // 确保 images 字段存在
-      //     console.log(record);
-
-      //     if (!record.images) {
-      //       record.images = ''; // 如果没有图片，设置为空字符串
-      //     }
-      //     return goods.update(record);
-      //   })
-      // );
-      await Promise.all(
-        updateRecords.map(async record => {
-          // 过滤无效数据
-          const validData = {
-            _id: record._id, // 确保携带ID
-            name: record.name,
-            description: record.description,
-            images: record.images || '',
-            // 其他字段...
-          }
-
-          return goods.update(validData)
+      // 处理更新记录（过滤有效字段）
+      await Promise.all(updateRecords.map((record) =>
+      
+        goods.update({
+          _id: record._id,
+          name: record.name,
+          description: record.description,
+          city: record.city,
+          count: record.count,
+          price: record.price,
+          production: record.production,
+          flag: record.flag,
+          images: record.images || '' // 确保包含图片
         })
-      )
+        
+      ))
 
       VxeUI.modal.alert({
         title: '商品管理器',
         content: `新增：${insertRecords.length} 行，已删除：${removeRecords.length} 行，待删除：${pendingRecords.length} 行，修改：${updateRecords.length} 行`,
       })
 
-      // 重新加载数据
       loadDataForm(selectRowSize.value)
     } catch (error) {
       console.error('保存失败', error)
       VxeUI.modal.message({
-        content: '保存失败',
-        status: 'error',
+        content: `保存失败: ${error.response?.data?.message || error.message}`,
+        status: 'error'
       })
     }
   }
 }
-
 nextTick(() => {
   loadDataForm(selectRowSize.value)
 })
 </script>
 <style lang="scss" scoped>
 @import url(./index.scss);
+.vxe-table {
+  .vxe-cell--image {
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 4px;
+      transition: transform 0.3s;
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+}
 </style>
